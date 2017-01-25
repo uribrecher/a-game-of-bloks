@@ -1,6 +1,7 @@
 module BaseTypes exposing (..)
 
 import Dict
+import Set exposing (Set)
 import Time
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
@@ -12,7 +13,7 @@ type Material = Rigid | Sliding MDir | Free
 type alias Loc = (Int, Int)
 
 type alias Blok =
-  { structure : List Loc
+  { structure : Set Loc
   , material : Material
   }
 
@@ -33,7 +34,7 @@ locInBounds (x,y) =
 
 blokInBounds : Blok -> Bool
 blokInBounds blok =
-  List.all locInBounds blok.structure
+  Set.foldl (\x accum -> accum || locInBounds x) False blok.structure
 
 materialColor : Material -> String
 materialColor material =
@@ -63,8 +64,8 @@ locToEmptyRect colorStr (xv,yv) =
 
 viewBlok : Blok -> List (Svg Msg)
 viewBlok blok =
-  List.map (locToRect blok.material) blok.structure
+  Set.toList blok.structure |> List.map (locToRect blok.material)
 
 viewEmptyBlok : String -> Blok -> List (Svg Msg)
 viewEmptyBlok color blok =
-  List.map (locToEmptyRect color) blok.structure
+  Set.toList blok.structure |> List.map (locToEmptyRect color)

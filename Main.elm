@@ -4,6 +4,7 @@ import Svg.Attributes exposing (..)
 import Keyboard
 import Random
 import Dict
+import Set
 import Time
 
 import BaseTypes exposing (..)
@@ -29,37 +30,37 @@ type alias Model =
 
 
 player =
-  { structure = [(10,10),(10,11),(11,10)]
+  { structure = Set.fromList [(10,10),(10,11),(11,10)]
   , material = Free
   }
 
 target =
-  { structure = [(10,19), (11,19),(12,19)]
+  { structure = Set.fromList [(10,19), (11,19),(12,19)]
   , material = Rigid
   }
 
 blok1 =
-  { structure = [(12,10),(12,11),(12,12)]
+  { structure = Set.fromList [(12,10),(12,11),(12,12)]
   , material = Sliding Horizontal
   }
 
 blok2 =
-  { structure = [(3,3)]
+  { structure = Set.fromList [(3,3)]
   , material = Rigid
   }
 
 blok3 =
-  { structure = [(8,8)]
+  { structure = Set.fromList [(8,8)]
   , material = Sliding Vertical
   }
 
 blok4 =
-  { structure = [(10,8), (10,9), (11,9)]
+  { structure = Set.fromList [(10,8), (10,9), (11,9)]
   , material = Free
   }
 
 
-blokList = [(0,player), (1,target), (2,blok1), (3,blok2), (4, blok3), (5, blok4)]
+blokList = [(0,player), (1,target), (2,blok1), (3,blok2) , (4, blok3), (5, blok4)]
 
 init : (Model, Cmd Msg)
 init =

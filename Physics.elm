@@ -2,7 +2,7 @@ module Physics exposing (updateLevel)
 
 import List
 import Dict
-import Set
+import Set exposing (Set)
 import BaseTypes exposing (..)
 import Level exposing (Level)
 
@@ -35,46 +35,57 @@ isSliding mdir gravity =
     Horizontal -> gravity == Up || gravity == Down
     Vertical -> gravity == Left || gravity == Right
 
-isAffectedByGravity : Material -> KDir -> Bool
-isAffectedByGravity mat gravity =
-  case mat of
+isAffectedByGravity : KDir -> Blok -> Bool
+isAffectedByGravity gravity blok =
+  case blok.material of
     Rigid -> False
     Free -> True
     Sliding x -> isSliding x gravity
 
-updateBlokStructure : KDir -> Blok -> Blok
-updateBlokStructure gravity blok =
-  let
-    transform = if isAffectedByGravity blok.material gravity then
-                  dirTransform gravity
-                else
-                  moveNone
-  in
-    {blok | structure = List.map transform blok.structure}
+flatten : BlokDict -> Set Loc
+flatten bloks =
+  Dict.foldl (\_ value accum -> Set.union value.structure accum) Set.empty bloks
 
-collisionTest : BlokDict -> Bool
-collisionTest bloks =
+noCollisions : BlokDict -> Int -> Blok -> Bool
+noCollisions bloks index _ =
   let
-    listOfLocations = List.concatMap .structure (Dict.values bloks)
-    setOfLocations = Set.fromList listOfLocations
+    (x,xs) =
+      Dict.partition (\key _ -> key == index) bloks
+    flatX = flatten x
+    flatXS = flatten xs
   in
-    List.length listOfLocations /= Set.size setOfLocations
+    Set.intersect flatX flatXS |> Set.isEmpty
 
-updateWithCollision : KDir -> Int -> BlokDict -> BlokDict
-updateWithCollision gravity index dict =
-  let
-    newDict = Dict.update index (Maybe.map (updateBlokStructure gravity)) dict
-    collision = collisionTest newDict
-  in
-    if collision then
-      dict
-    else
-      newDict
+{-}
+inBoundsAndNoCollision : BlokDict -> Int -> Blok -> Bool
+inBoundsAndNoCollision bloks key val =
+  blokInBounds val && hasCollisions bloks key
+--}
+
+updateBlok : KDir -> Int -> Blok -> Blok
+updateBlok gravity _ blok =
+    {blok | structure = Set.map (dirTransform gravity) blok.structure}
+
+getCollisions : BlokDict -> BlokDict -> BlokDict
+getCollisions live candidate =
+  (Dict.filter (noCollisions candidate) candidate) |> Dict.diff live
+
+repositionBloks : KDir -> BlokDict -> BlokDict -> BlokDict
+repositionBloks gravity live dead =
+    let
+      candidate = Dict.union dead (Dict.map (updateBlok gravity) live)
+      collision = getCollisions live candidate
+    in
+      if (Dict.size collision) == 0 then
+        candidate
+      else
+        repositionBloks gravity (Dict.diff live collision) (Dict.union dead collision)
 
 updateLevel : KDir -> Level -> Level
 updateLevel gravity level =
   let
-    newBloks =
-      List.foldl (updateWithCollision gravity) level.bloks (Dict.keys level.bloks)
+    inBoundsBloks = Dict.filter (\_ val -> blokInBounds val) level.bloks
+    (liveBloks, deadBloks) = Dict.partition (\_ val -> isAffectedByGravity gravity val) inBoundsBloks
+    newBloks = repositionBloks gravity liveBloks deadBloks
   in
     {level | bloks = newBloks}
