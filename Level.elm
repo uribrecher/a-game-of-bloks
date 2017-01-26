@@ -1,4 +1,4 @@
-module Level exposing (Level, viewLevel, playerBlok)
+module Level exposing (Level, viewLevel, playerBlok, targetBlok)
 
 import BaseTypes exposing (..)
 import Dict

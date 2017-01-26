@@ -1,4 +1,4 @@
-module Physics exposing (updateLevel)
+module Physics exposing (updateLevel, levelCleared)
 
 import List
 import Dict
@@ -74,12 +74,18 @@ repositionBloks : KDir -> BlokDict -> BlokDict -> BlokDict
 repositionBloks gravity live dead =
     let
       candidate = Dict.union dead (Dict.map (updateBlok gravity) live)
-      collision = getCollisions live candidate
+      noPlayer = Dict.filter (\k _ -> k /= 0) candidate
+      noTarget = Dict.filter (\k _ -> k /= 1) candidate
+      noPLive  = Dict.filter (\k _ -> k /= 0) live
+      noTLive  = Dict.filter (\k _ -> k /= 1) live
+      collisionsPlayer = getCollisions noPLive noPlayer
+      collisionsTarget = getCollisions noTLive noTarget
+      collisions = Dict.union collisionsPlayer collisionsTarget
     in
-      if (Dict.size collision) == 0 then
+      if (Dict.size collisions) == 0 then
         candidate
       else
-        repositionBloks gravity (Dict.diff live collision) (Dict.union dead collision)
+        repositionBloks gravity (Dict.diff live collisions) (Dict.union dead collisions)
 
 updateLevel : KDir -> Level -> Level
 updateLevel gravity level =
@@ -89,3 +95,11 @@ updateLevel gravity level =
     newBloks = repositionBloks gravity liveBloks deadBloks
   in
     {level | bloks = newBloks}
+
+levelCleared : Level -> Bool
+levelCleared level =
+  let
+    player = Level.playerBlok level |> Maybe.withDefault emptyBlok |> .structure
+    target = Level.targetBlok level |> Maybe.withDefault emptyBlok |> .structure
+  in
+    Set.intersect player target |> Set.isEmpty |> not

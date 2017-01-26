@@ -17,6 +17,12 @@ type alias Blok =
   , material : Material
   }
 
+emptyBlok : Blok
+emptyBlok =
+  { structure = Set.empty
+  , material = Rigid
+  }
+
 type alias BlokDict = Dict.Dict Int Blok
 
 type Msg

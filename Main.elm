@@ -10,6 +10,7 @@ import Time
 import BaseTypes exposing (..)
 import Level exposing (Level)
 import Physics
+import LevelBuilder
 
 main =
   Html.program
@@ -25,6 +26,7 @@ type alias Model =
   { level : Level.Level
   , gravity : KDir
   , gameOver : Bool
+  , levelCleared : Bool
   , stable : Bool
   }
 
@@ -35,7 +37,7 @@ player =
   }
 
 target =
-  { structure = Set.fromList [(10,19), (11,19),(12,19)]
+  { structure = Set.fromList [(10,7), (11,7),(12,7)]
   , material = Rigid
   }
 
@@ -54,11 +56,7 @@ blok3 =
   , material = Sliding Vertical
   }
 
-blok4 =
-  { structure = Set.fromList [(10,8), (10,9), (11,9)]
-  , material = Free
-  }
-
+blok4 = LevelBuilder.frame Rigid (0,0) (20,20)
 
 blokList = [(0,player), (1,target), (2,blok1), (3,blok2) , (4, blok3), (5, blok4)]
 
@@ -72,6 +70,7 @@ init =
       }
    , gravity = Down
    , gameOver = False
+   , levelCleared = False
    , stable = False
    }, Cmd.none)
 
@@ -117,8 +116,14 @@ updateStat model =
       model.level == newLevel
     newGameOver =
       updateGameOver newLevel
+    levelCleared =
+      Physics.levelCleared newLevel
   in
-    {model | level = newLevel, gameOver = newGameOver, stable = newStable}
+    {model | level = if model.levelCleared then model.level else newLevel
+    , gameOver = newGameOver
+    , stable = newStable
+    , levelCleared = levelCleared
+    }
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
