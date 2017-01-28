@@ -10,7 +10,8 @@ import Time
 import BaseTypes exposing (..)
 import Level exposing (Level)
 import Physics
-import LevelBuilder
+import LevelsDB
+
 
 main =
   Html.program
@@ -23,7 +24,7 @@ main =
 -- MODEL
 
 type alias Model =
-  { level : Level.Level
+  { levels : List Level.Level
   , gravity : KDir
   , gameOver : Bool
   , levelCleared : Bool
@@ -31,43 +32,13 @@ type alias Model =
   }
 
 
-player =
-  { structure = Set.fromList [(10,10),(10,11),(11,10)]
-  , material = Free
-  }
-
-target =
-  { structure = Set.fromList [(10,7), (11,7),(12,7)]
-  , material = Rigid
-  }
-
-blok1 =
-  { structure = Set.fromList [(12,10),(12,11),(12,12)]
-  , material = Sliding Horizontal
-  }
-
-blok2 =
-  { structure = Set.fromList [(3,3)]
-  , material = Rigid
-  }
-
-blok3 =
-  { structure = Set.fromList [(8,8)]
-  , material = Sliding Vertical
-  }
-
-blok4 = LevelBuilder.frame Rigid (0,0) (20,20)
-
-blokList = [(0,player), (1,target), (2,blok1), (3,blok2) , (4, blok3), (5, blok4)]
+getLevel : Model -> Level.Level
+getLevel model =
+  Maybe.withDefault LevelsDB.emptyLevel (List.head model.levels)
 
 init : (Model, Cmd Msg)
 init =
-  ({ level =
-      { bloks = Dict.fromList blokList
-      , player = 0
-      , target = 1
-      , name = "Test123"
-      }
+  ({ levels = LevelsDB.levels
    , gravity = Down
    , gameOver = False
    , levelCleared = False
@@ -107,19 +78,32 @@ updateGameOver : Level -> Bool
 updateGameOver level =
   Level.playerBlok level |> andThenPred blokInBounds |> not
 
+updateLevels : Bool -> Level.Level -> List Level.Level -> List Level.Level
+updateLevels isCleared newLevel levels =
+  let
+    tail = Maybe.withDefault [] (List.tail levels)
+  in
+      if isCleared then
+        tail
+      else
+        newLevel :: tail
+
 updateStat : Model -> Model
 updateStat model =
   let
     newLevel =
-      Physics.updateLevel model.gravity model.level
+      Physics.updateLevel model.gravity (getLevel model)
     newStable =
-      model.level == newLevel
+      (getLevel model) == newLevel
     newGameOver =
       updateGameOver newLevel
     levelCleared =
       Physics.levelCleared newLevel
+    newLevels =
+      updateLevels levelCleared newLevel model.levels
   in
-    {model | level = if model.levelCleared then model.level else newLevel
+    { model
+    | levels = newLevels
     , gameOver = newGameOver
     , stable = newStable
     , levelCleared = levelCleared
@@ -145,9 +129,23 @@ subscriptions model =
 
 -- VIEW
 
+viewBackGround : Svg Msg
+viewBackGround =
+  rect [ fill "#000000"
+       , x "0"
+       , y "0"
+       , width (toString (rectSize * boundsX))
+       , height (toString (rectSize * boundsY))
+       ] []
+
+
 view : Model -> Html Msg
 view model =
     Html.div []
-      [ Level.viewLevel model.level
-      , Html.text (if model.gameOver then "game over" else "running")
+      [
+        Svg.svg [ viewBox "0 0 100 100", width "700px" ]
+        [ viewBackGround
+        , Svg.g [Svg.Attributes.transform "translate(10,10) scale(0.8)"] (Level.viewLevel (getLevel model))
+        , Svg.text_ [x "10", y "5", fontSize "7", fill "#ffffff"] [Svg.text (if model.gameOver then "game over" else "")]
+        ]
       ]

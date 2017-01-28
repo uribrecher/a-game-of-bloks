@@ -3,22 +3,20 @@ module LevelBuilder exposing (..)
 import Set exposing (Set)
 import BaseTypes exposing (..)
 
-blok : Material -> Set Loc -> Blok
+blok : Material -> List Loc -> Blok
 blok mat struct =
   { material = mat
-  , structure = struct
+  , structure = Set.fromList struct
   }
 
 hStick : Material -> Loc -> Int -> Blok
 hStick mat (x,y) size =
   List.map2 (,) (List.range x (x + size - 1)) (List.repeat size y)
-    |> Set.fromList
     |> blok mat
 
 vStick : Material -> Loc -> Int -> Blok
 vStick mat (x,y) size =
   List.map2 (,) (List.repeat size x) (List.range y (y + size - 1))
-    |> Set.fromList
     |> blok mat
 
 
@@ -29,19 +27,19 @@ cartesianProduct xs ys =
 box : Material -> Loc -> Int -> Blok
 box mat (x,y) size =
   cartesianProduct (List.range x (x + size)) (List.range y (y + size))
-    |> Set.fromList
     |> blok mat
 
 cross : Material -> Loc -> Blok
 cross mat (x,y) =
   [(x,y),(x+1,y),(x-1,y),(x,y-1),(x,y+1)]
-    |> Set.fromList
     |> blok mat
 
 -- assume all bloks have the same material
 union : List Blok -> Blok
 union bloks =
-  List.foldl (\x accum -> blok x.material (Set.union x.structure accum.structure)) (blok Rigid Set.empty) bloks
+  List.foldl
+    (\x accum -> blok x.material (Set.union x.structure accum.structure |> Set.toList))
+    (blok Rigid []) bloks
 
 frame : Material -> Loc -> Loc -> Blok
 frame mat (left,top) (width, height) =
@@ -53,7 +51,6 @@ frame mat (left,top) (width, height) =
 lBlok : Material -> Loc -> Blok
 lBlok mat (x,y) =
   [(x,y), (x+1,y), (x,y-1)]
-    |> Set.fromList
     |> blok mat
 
 rotateTransformation : Loc -> Loc -> Loc
@@ -70,5 +67,5 @@ rotate rotation blk =
     origin = List.head (Set.toList blk.structure)
   in
     case origin of
-      Just x -> blok blk.material (Set.map (rotateTransformation x) blk.structure)
-      Nothing -> blok Rigid Set.empty
+      Just x -> blok blk.material (Set.map (rotateTransformation x) blk.structure |> Set.toList)
+      Nothing -> blok Rigid []

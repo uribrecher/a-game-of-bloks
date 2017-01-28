@@ -37,22 +37,25 @@ viewTarget : Level -> List (Svg Msg)
 viewTarget level =
   targetBlok level |> andThenList (viewEmptyBlok "#00ffff")
 
-viewLevel : Level -> Svg Msg
+viewLevel : Level -> List (Svg Msg)
 viewLevel level =
-  svg [ viewBox "0 0 100 100", width "700px" ]
-      (viewBackGround ::
-        ((List.concatMap viewBlok (Dict.values level.bloks)) ++
-         viewTarget level ++ viewPlayer level))
+    List.concat
+    [ [viewFrame]
+    , List.concatMap viewBlok (Dict.values level.bloks)
+    , viewTarget level
+    , viewPlayer level
+    , [Svg.text_ [x "0", y "105", fontSize "5", fill "#ffffff"][Svg.text level.name]]
+    ]
 
-viewBackGround : Svg Msg
-viewBackGround =
-  rect [ fill "#000000"
+viewFrame : Svg Msg
+viewFrame =
+  rect [ fillOpacity "0%"
+       , stroke "#ffffff"
        , x "0"
        , y "0"
-       , width (toString (rectSize * boundsX))
-       , height (toString (rectSize * boundsY))
+       , width "100"
+       , height "100"
        ] []
-
 
 
 -- BEGIN TODO: use HTTP GET to retrieve that from the server
