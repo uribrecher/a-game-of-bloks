@@ -29,6 +29,7 @@ type Msg
   = KeyDown Int
   | KeyUp Int
   | Tick Time.Time
+  | Replay
 
 boundsX = 20
 boundsY = 20

@@ -1,4 +1,4 @@
-module Physics exposing (updateLevel, levelCleared)
+module Physics exposing (updateLevelState, levelCleared)
 
 import List
 import Dict
@@ -87,8 +87,8 @@ repositionBloks gravity live dead =
       else
         repositionBloks gravity (Dict.diff live collisions) (Dict.union dead collisions)
 
-updateLevel : KDir -> Level -> Level
-updateLevel gravity level =
+updateLevelState : KDir -> Level -> Level
+updateLevelState gravity level =
   let
     inBoundsBloks = Dict.filter (\_ val -> blokInBounds val) level.bloks
     (liveBloks, deadBloks) = Dict.partition (\_ val -> isAffectedByGravity gravity val) inBoundsBloks

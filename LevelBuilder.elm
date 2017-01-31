@@ -19,7 +19,6 @@ vStick mat (x,y) size =
   List.map2 (,) (List.repeat size x) (List.range y (y + size - 1))
     |> blok mat
 
-
 cartesianProduct : List a -> List b -> List (a,b)
 cartesianProduct xs ys =
   List.concatMap (\x -> List.map (\y -> (x,y)) ys) xs
@@ -33,6 +32,14 @@ cross : Material -> Loc -> Blok
 cross mat (x,y) =
   [(x,y),(x+1,y),(x-1,y),(x,y-1),(x,y+1)]
     |> blok mat
+
+hCross : Material -> Loc -> Blok
+hCross mat (x,y) =
+  [(x,y),(x-1,y),(x+1,y),(x,y+1)] |> blok mat
+
+corner : Material -> Loc -> Blok
+corner mat (x,y) =
+  [(x,y), (x+1,y),(x,y+1)] |> blok mat
 
 -- assume all bloks have the same material
 union : List Blok -> Blok

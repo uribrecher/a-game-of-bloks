@@ -1,19 +1,24 @@
 module LevelsDB exposing (emptyLevel, levels)
 
 import BaseTypes exposing (..)
-import LevelBuilder
+import LevelBuilder exposing (..)
 import Dict exposing (Dict)
 
-player = LevelBuilder.blok Free [(2,2)]
+player = blok Free [(2,2)]
 
-target = LevelBuilder.blok Rigid [(18,18)]
-target2 = LevelBuilder.blok Rigid [(15,15)]
-stopper1 = LevelBuilder.blok Rigid [(1,14)]
-stopper2 = LevelBuilder.blok Rigid [(14,1)]
+target = blok Rigid [(18,18)]
+target2 = blok Rigid [(15,15)]
+stopper1 = blok Rigid [(1,14)]
+stopper2 = blok Rigid [(14,1)]
+leftWall = vStick Rigid (19,0) 4
+rightWall = union [vStick Rigid (0,0) 4, blok Rigid [(1,0)]]
+midWall = vStick Rigid (16,0) 2
+fram = frame Rigid (0,0) (20,20)
 
-frame = LevelBuilder.frame Rigid (0,0) (20,20)
-
-blokDict = Dict.fromList [(0,player), (1,target), (2,frame)]
+openFrame = union
+  [ hStick Rigid (0,0) 20
+  , hStick Rigid (0,19) 20
+  , vStick Rigid (0,0) 20]
 
 pairs : List a -> List b -> List (a,b)
 pairs = List.map2 (,)
@@ -37,20 +42,33 @@ finalLevel =
 
 level1 =
   { emptyLevel
-  |  bloks = bloksDict [player, target, frame]
+  |  bloks = bloksDict [player, target, fram]
   , name = "Hello World"
   }
 
 level2 =
   { emptyLevel
-  |  bloks = bloksDict [player, target2, frame, stopper1]
-  , name = "Hello World"
+  |  bloks = bloksDict [player, target2, fram, stopper1]
+  , name = "use the stopper"
   }
 
 level3 =
   { emptyLevel
-  |  bloks = bloksDict [player, target2, frame, stopper2]
-  , name = "Hello World"
+  |  bloks = bloksDict [player, target2, fram, stopper2]
+  , name = "use that stopper, please"
   }
 
-levels = [level1, level2, level3, finalLevel]
+level4 =
+  { emptyLevel
+  |  bloks = bloksDict [player, target2, openFrame, stopper1]
+  , name = "mind the gap!"
+  }
+
+level5 =
+  { emptyLevel
+  |  bloks = bloksDict [player, target2, leftWall, rightWall, midWall]
+  , name = "mind the gap!"
+  }
+
+
+levels = [level1, level2, level3, level4, level5, finalLevel]
