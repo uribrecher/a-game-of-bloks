@@ -5,7 +5,7 @@ import LevelBuilder exposing (..)
 import Dict exposing (Dict)
 
 player = blok Free [(2,2)]
-
+player2 = blok Free [(10,2)]
 target = blok Rigid [(18,18)]
 target2 = blok Rigid [(15,15)]
 stopper1 = blok Rigid [(1,14)]
@@ -14,6 +14,7 @@ leftWall = vStick Rigid (19,0) 4
 rightWall = union [vStick Rigid (0,0) 4, blok Rigid [(1,0)]]
 midWall = vStick Rigid (16,0) 2
 fram = frame Rigid (0,0) (20,20)
+diode1 = diode (10,5) 10 1
 
 openFrame = union
   [ hStick Rigid (0,0) 20
@@ -70,5 +71,12 @@ level5 =
   , name = "mind the gap!"
   }
 
+level6 =
+  { emptyLevel
+  |  bloks = bloksDict [player2, target2, diode1, fram]
+  , name = "Diode"
+  }
 
-levels = [level1, level2, level3, level4, level5, finalLevel]
+
+
+levels = [level1, level2, level6, level3, level4, level5, finalLevel]

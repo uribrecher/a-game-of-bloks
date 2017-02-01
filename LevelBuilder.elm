@@ -60,6 +60,47 @@ lBlok mat (x,y) =
   [(x,y), (x+1,y), (x,y-1)]
     |> blok mat
 
+oneWay : Loc -> Blok
+oneWay (x,y) =
+  [(x,y+1),(x,y-1),(x+1,y)]
+    |> blok Rigid
+
+twoWay : Loc -> Blok
+twoWay (x,y) =
+  [(x,y+1), (x+1,y)]
+    |> blok Rigid
+
+deadEnd : Loc -> Int -> Int -> Blok
+deadEnd (x,y) width height =
+  union [
+    blok Rigid [(x,y+height)]
+  , twoWay (x + width // 2, y)
+  , twoWay (x - width // 2, y)
+  , twoWay (x + width // 2, y + height)
+  , twoWay (x - width // 2, y + height)
+  ]
+
+diode : Loc -> Int -> Int -> Blok
+diode (x,y) width height =
+  union [
+    blok Rigid [(x,y+height + 1)]
+  , twoWay (x + width // 2, y) |> hFlip
+  , twoWay (x - width // 2, y)
+  , blok Rigid [(x + width // 2, y + height)]
+  , blok Rigid [(x - width // 2, y + height)]
+  ]
+
+
+-- TRANSFORMATIONS -------------------------------------------------------------
+
+hFlipTransformation : Loc -> Loc -> Loc
+hFlipTransformation (axis,_) (x,y) =
+  (2 * axis - x,y)
+
+vFlipTransformation : Loc -> Loc -> Loc
+vFlipTransformation (_,axis) (x,y) =
+  (x,2 * axis - y)
+
 rotateTransformation : Loc -> Loc -> Loc
 rotateTransformation (ox,oy) (x,y) =
   let
@@ -68,11 +109,23 @@ rotateTransformation (ox,oy) (x,y) =
   in
    (rx + ox, ry + ox)
 
-rotate : Int -> Blok -> Blok
-rotate rotation blk =
+transformBlok : (Loc -> Loc -> Loc) -> Blok -> Blok
+transformBlok transf blk =
   let
     origin = List.head (Set.toList blk.structure)
   in
     case origin of
-      Just x -> blok blk.material (Set.map (rotateTransformation x) blk.structure |> Set.toList)
+      Just o -> Set.map (transf o) blk.structure |> Set.toList |> blok blk.material
       Nothing -> blok Rigid []
+
+hFlip : Blok -> Blok
+hFlip =
+  transformBlok hFlipTransformation
+
+vFlip : Blok -> Blok
+vFlip =
+  transformBlok vFlipTransformation
+
+rotate : Blok -> Blok
+rotate =
+  transformBlok rotateTransformation
