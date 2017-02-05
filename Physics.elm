@@ -32,8 +32,8 @@ dirTransform dir =
 isSliding : MDir -> KDir -> Bool
 isSliding mdir gravity =
   case mdir of
-    Horizontal -> gravity == Up || gravity == Down
-    Vertical -> gravity == Left || gravity == Right
+    Vertical -> gravity == Up || gravity == Down
+    Horizontal -> gravity == Left || gravity == Right
 
 isAffectedByGravity : KDir -> Blok -> Bool
 isAffectedByGravity gravity blok =

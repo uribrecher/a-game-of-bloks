@@ -77,6 +77,19 @@ level6 =
   , name = "Diode"
   }
 
+slid1 = hStick (Sliding Horizontal) (1,4) 5
+slid2 = vStick (Sliding Vertical) (10,14) 3
+slid3 = vStick (Sliding Vertical) (15,17) 2
+wall1 = vStick Rigid (11,5) 14
+wall2 = vStick Rigid (16,3) 2
+player3 = blok Free [(3,15)]
+
+level7 =
+  { emptyLevel
+  |  bloks = bloksDict [player3, target, fram, slid1, slid2, slid3, wall1, wall2]
+  , name = "slip sliding away"
+  }
 
 
-levels = [level1, level2, level6, level3, level4, level5, finalLevel]
+
+levels = [level7, level1, level2, level6, level3, level4, level5, finalLevel]
