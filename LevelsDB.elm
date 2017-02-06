@@ -5,7 +5,7 @@ import LevelBuilder exposing (..)
 import Dict exposing (Dict)
 
 player = blok Free [(2,2)]
-player2 = blok Free [(10,2)]
+player2 = blok Free [(11,2)]
 target = blok Rigid [(18,18)]
 target2 = blok Rigid [(15,15)]
 stopper1 = blok Rigid [(1,14)]
@@ -14,7 +14,7 @@ leftWall = vStick Rigid (19,0) 4
 rightWall = union [vStick Rigid (0,0) 4, blok Rigid [(1,0)]]
 midWall = vStick Rigid (16,0) 2
 fram = frame Rigid (0,0) (20,20)
-diode1 = diode (10,5) 10 1
+diode1 = diode (11,5) 10 1
 
 openFrame = union
   [ hStick Rigid (0,0) 20
@@ -65,6 +65,7 @@ level4 =
   , name = "mind the gap!"
   }
 
+-- TODO: fix this one
 level5 =
   { emptyLevel
   |  bloks = bloksDict [player, target2, leftWall, rightWall, midWall]
@@ -90,6 +91,26 @@ level7 =
   , name = "slip sliding away"
   }
 
+player4 = blok Free [(1,9)]
+target4 = blok Rigid [(17,9)]
+mini_bloks = blok Rigid [(1,8),(1,13),(9,8),(9,13),(13,8),(13,13)]
+wall8_1 = hStick Rigid (5,16) 3
+wall8_2 = hStick Rigid (9,3) 3
+wall8_3 = hStick Rigid (13,16) 3
+slid8_1 = vStick (Sliding Vertical) (6,9) 7
+slid8_2 = vStick (Sliding Vertical) (10,4) 6
+slid8_3 = vStick (Sliding Vertical) (14,9) 7
+reset_bloks = blok Rigid [(1,18), (2,11)]
+
+level8 =
+  { emptyLevel
+  |  bloks = bloksDict [player4, target4, fram
+                       , slid8_1, slid8_2, slid8_3
+                       , wall8_1, wall8_2, wall8_3, mini_bloks, reset_bloks]
+  , name = "zipper slider"
+  }
 
 
-levels = [level7, level1, level2, level6, level3, level4, level5, finalLevel]
+levels = [level1, level2, level3, level4
+         ,level6, level7, level8
+         , finalLevel]
