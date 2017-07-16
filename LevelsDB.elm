@@ -110,7 +110,27 @@ level8 =
   , name = "zipper slider"
   }
 
+player9 = blok Free [(2,4)]
+target9 = blok Rigid [(16,15)]
+mini_bloks9 = blok Rigid [(5,1), (2,18), (6,17), (8,16)
+                        ,(9,4), (10,12), (11,7)
+                        ,(15,13), (16,5), (17,8)
+                        ,(18,17), (19,2)]
 
-levels = [level1, level2, level3, level4
+level9 =
+  { emptyLevel
+  |  bloks = bloksDict [player9, target9, mini_bloks9]
+  , name = "vortex"
+  }
+
+mini_bloks10 = blok Rigid [(9,19),(3,18),(14,18)
+                          ,(6,8),(7,11)]
+level10 =
+  { level9
+  |  bloks = bloksDict [player9, target9, mini_bloks9, mini_bloks10]
+  , name = "vortex2"
+  }
+
+levels = [level9, level10, level1, level2, level3, level4
          ,level6, level7, level8
          , finalLevel]
