@@ -42,7 +42,7 @@ type alias Model =
     }
 
 
-init : String -> ( Model, Cmd Msg )
+init : () -> ( Model, Cmd Msg )
 init _ =
     ( updateReplay
         { levels = Array.fromList LevelsDB.levels
